@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         网大学习助手
+// @name         中移网大学习助手
 // @namespace    https://github.com/huaxiaoxuan7/CM-Online-University-Boost
 // @version      0.1
 // @description  网大视频播放停止后自动恢复播放
@@ -13,7 +13,7 @@
 
   // 工具函数
   const wait = (ms) => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       setTimeout(resolve, ms)
     })
   }
@@ -43,5 +43,5 @@
 
   // 主逻辑
   registerEvent(await getVideoDom())
-  window.alert('网大学习助手已启动！')
+  window.alert('中移网大学习助手已启动！')
 })();
