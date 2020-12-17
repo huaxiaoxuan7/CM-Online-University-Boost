@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         中移网大学习视频增强
+// @name         网大学习助手
 // @namespace    https://github.com/huaxiaoxuan7/CM-Online-University-Boost
 // @version      0.1
-// @description  视频播放停止后自动恢复
+// @description  网大视频播放停止后自动恢复播放
 // @author       Hua Xiao Xuan
 // @match        https://wangda.chinamobile.com/
 // @grant        none
@@ -30,18 +30,18 @@
   const onVideoChange = async (mutationsList) => {
     mutationsList.forEach(async item => {
       if (item.attributeName === 'src') {
-        videoDom = await getVideoDom()
-        observer.observe(videoDom, config)
-        videoDom.addEventListener('pause', () => videoDom.play())
+        registerEvent(await getVideoDom())
       }
     })
   }
 
-  const config = { attributes: true, childList: false, subtree: false };
+  const registerEvent = (videoDom) => {
+    videoDom.addEventListener('pause', () => videoDom.play())
+    const observer = new MutationObserver(onVideoChange)
+    observer.observe(videoDom, { attributes: true, childList: false, subtree: false })
+  }
 
   // 主逻辑
-  let videoDom = await getVideoDom()
-  videoDom.addEventListener('pause', () => videoDom.play())
-  const observer = new MutationObserver(onVideoChange)
-  observer.observe(videoDom, config)
+  registerEvent(await getVideoDom())
+  window.alert('网大学习助手已启动！')
 })();
