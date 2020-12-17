@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         网大学习视频增强脚本
-// @namespace    http://tampermonkey.net/
+// @name         中移网大学习视频增强
+// @namespace    https://github.com/huaxiaoxuan7/CM-Online-University-Boost
 // @version      0.1
 // @description  视频播放停止后自动恢复
 // @author       Hua Xiao Xuan
@@ -8,13 +8,40 @@
 // @grant        none
 // ==/UserScript==
 
-(function () {
+(async function () {
   'use strict';
-  // Your code here...
-  console.log('脚本启动中...')
-  setTimeout(() => {
-    const [video] = document.getElementsByTagName('video')
-    video.addEventListener('pause', () => video.play())
-    window.alert('元素已捕捉，增强模式开启')
-  }, 5000)
+
+  // 工具函数
+  const wait = (ms) => {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms)
+    })
+  }
+
+  const getVideoDom = async () => {
+    let [video] = document.getElementsByTagName('video')
+    while (!video || !video.src) {
+      await wait(50)
+      video = document.getElementsByTagName('video')[0]
+    }
+    return video
+  }
+
+  const onVideoChange = async (mutationsList) => {
+    mutationsList.forEach(async item => {
+      if (item.attributeName === 'src') {
+        videoDom = await getVideoDom()
+        observer.observe(videoDom, config)
+        videoDom.addEventListener('pause', () => videoDom.play())
+      }
+    })
+  }
+
+  const config = { attributes: true, childList: false, subtree: false };
+
+  // 主逻辑
+  let videoDom = await getVideoDom()
+  videoDom.addEventListener('pause', () => videoDom.play())
+  const observer = new MutationObserver(onVideoChange)
+  observer.observe(videoDom, config)
 })();
