@@ -27,6 +27,8 @@
     return video
   }
 
+  function preventPause() { videoDom.play().catch(err => console.log(err)) }
+
   const onVideoChange = async (mutationsList) => {
     mutationsList.forEach(async item => {
       if (item.attributeName === 'src') {
@@ -35,13 +37,30 @@
     })
   }
 
-  const registerEvent = (videoDom) => {
-    videoDom.addEventListener('pause', () => videoDom.play())
+  const registerEvent = async (videoDom) => {
+    videoDom.addEventListener('pause', preventPause)
+
     const observer = new MutationObserver(onVideoChange)
     observer.observe(videoDom, { attributes: true, childList: false, subtree: false })
+
+    let { duration, currentTime } = videoDom
+    while (!duration) {
+      await wait(50)
+      duration = videoDom.duration
+    }
+    while ((duration - currentTime) > 5) {
+      await wait(1000)
+      currentTime = videoDom.currentTime
+    }
+    videoDom.removeEventListener('pause', preventPause)
+    videoDom.pause()
+    await wait(duration * 50)
+    videoDom.play()
+    videoDom.addEventListener('pause', preventPause)
   }
 
   // 主逻辑
-  registerEvent(await getVideoDom())
+  const videoDom = await getVideoDom()
+  registerEvent(videoDom)
   window.alert('中移网大学习助手已启动！')
 })();
