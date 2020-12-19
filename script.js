@@ -1,15 +1,15 @@
 // ==UserScript==
 // @name         中移网大学习助手
 // @namespace    https://github.com/huaxiaoxuan7/CM-Online-University-Boost
-// @version      0.1.1
+// @version      0.2.0
 // @description  网大视频播放停止后自动恢复播放
 // @author       Hua Xiao Xuan
 // @match        https://wangda.chinamobile.com/
 // @grant        none
 // ==/UserScript==
 
-(async function () {
-  'use strict';
+(async () => {
+  'use strict'
 
   // 工具函数
   const wait = (ms) => {
@@ -21,18 +21,24 @@
   const getVideoDom = async () => {
     let [video] = document.getElementsByTagName('video')
     while (!video || !video.src) {
-      await wait(50)
+      await wait(100)
       video = document.getElementsByTagName('video')[0]
     }
     return video
   }
 
-  function preventPause() { videoDom.play().catch(err => console.log(err)) }
+  function preventPause() {
+    videoDom.play().catch(err => console.log(err))
+    pauseCount += 1
+    updateBanner(banner)
+  }
 
   const onVideoChange = async (mutationsList) => {
     mutationsList.forEach(async item => {
       if (item.attributeName === 'src') {
         videoDom = await getVideoDom()
+        courseCount += 1
+        updateBanner(banner)
         registerEvent(videoDom)
       }
     })
@@ -40,7 +46,7 @@
 
   const registerEvent = async (videoDom) => {
     videoDom.addEventListener('pause', preventPause)
-
+    videoDom.muted = true
     const observer = new MutationObserver(onVideoChange)
     observer.observe(videoDom, { attributes: true, childList: false, subtree: false })
 
@@ -60,8 +66,35 @@
     videoDom.addEventListener('pause', preventPause)
   }
 
+  const createBanner = () => {
+    const banner = document.createElement('h2')
+    banner.textContent = `听课小助手提醒您：本次已学习${timer}，共播放了${courseCount}个视频，自动恢复播放了${pauseCount}次`
+    banner.style.margin = '16px'
+    banner.style.textAlign = 'center'
+    return banner
+  }
+
+  const updateBanner = (banner) => {
+    banner.textContent = `听课小助手提醒您：本次已学习${timer}，共播放了${courseCount}个视频，自动恢复播放了${pauseCount}次`
+  }
+
+  const showBanner = (banner, startTime) => {
+    const detailPage = document.getElementsByClassName('course-detail-page')[0]
+    detailPage.insertBefore(banner, detailPage.firstChild)
+    setInterval(() => {
+      const diff = (Date.now() - startTime) / 1000
+      timer = `${Math.floor(diff / 60 / 60 / 24)}天${Math.floor(diff / 60 / 60) % 24}小时${Math.floor(diff / 60) % 60}分${Math.floor(diff % 60)}秒`
+      updateBanner(banner)
+    }, 1000)
+  }
+
   // 主逻辑
   let videoDom = await getVideoDom()
   registerEvent(videoDom)
-  window.alert('中移网大学习助手已启动！')
-})();
+
+  let timer = ''
+  let pauseCount = 0
+  let courseCount = 0
+  const banner = createBanner()
+  showBanner(banner, Date.now())
+})()
