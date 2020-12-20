@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         中移网大学习助手
 // @namespace    https://github.com/huaxiaoxuan7/CM-Online-University-Boost
-// @version      0.2.0
+// @version      0.2.2
 // @description  网大视频播放停止后自动恢复播放
 // @author       Hua Xiao Xuan
 // @match        https://wangda.chinamobile.com/
@@ -28,7 +28,7 @@
   }
 
   function preventPause() {
-    videoDom.play().catch(err => console.log(err))
+    videoDom.play().catch(() => (pauseCount -= 1))
     pauseCount += 1
     updateBanner(banner)
   }
@@ -68,18 +68,23 @@
 
   const createBanner = () => {
     const banner = document.createElement('h2')
-    banner.textContent = `听课小助手提醒您：本次已学习${timer}，共播放了${courseCount}个视频，自动恢复播放了${pauseCount}次`
-    banner.style.margin = '16px'
+    banner.textContent = `本次已连续听课${timer}，学习了${courseCount}个视频，自动恢复播放了${pauseCount}次`
+    banner.style.position = 'absolute'
+    banner.style.width = '90%'
+    banner.style.top = '66px'
+    banner.style.left = '50%'
+    banner.style.margin = '0 0 0 -45%'
+    banner.style.color = 'white'
     banner.style.textAlign = 'center'
     return banner
   }
 
   const updateBanner = (banner) => {
-    banner.textContent = `听课小助手提醒您：本次已学习${timer}，共播放了${courseCount}个视频，自动恢复播放了${pauseCount}次`
+    banner.textContent = `本次已连续听课${timer}，学习了${courseCount}个视频，自动恢复播放了${pauseCount}次`
   }
 
-  const showBanner = (banner, startTime) => {
-    const detailPage = document.getElementsByClassName('course-detail-page')[0]
+  const showBanner = (startTime) => {
+    const detailPage = document.getElementById('content')
     detailPage.insertBefore(banner, detailPage.firstChild)
     setInterval(() => {
       const diff = (Date.now() - startTime) / 1000
@@ -90,11 +95,12 @@
 
   // 主逻辑
   let videoDom = await getVideoDom()
+  const contentDom = document.getElementsByClassName('content')[1]
   registerEvent(videoDom)
 
   let timer = ''
   let pauseCount = 0
   let courseCount = 0
-  const banner = createBanner()
-  showBanner(banner, Date.now())
+  let banner = createBanner()
+  showBanner(Date.now())
 })()
