@@ -41,6 +41,7 @@
 1. 在浏览器中安装Tampermonkey插件；
     * 内网环境下，Chrome、Microsoft Edge、360极速等浏览器可以使用附件中的离线安装包*Tampermonkey_v4.8.41.crx*安装插件。
     * 外网环境下，各浏览器可以通过扩展管理页面来安装插件。
+    
 2. 添加脚本
     * 内网环境下，点击Tampermonkey插件图标，选择*添加新脚本*，将附件中的script.js的内容替换到文本框中并保存。
     * 外网环境下，用安装好Tampermonkey插件的浏览器访问[脚本页面](https://greasyfork.org/scripts/418737-%E4%B8%AD%E7%A7%BB%E7%BD%91%E5%A4%A7%E5%AD%A6%E4%B9%A0%E5%8A%A9%E6%89%8B)，点击安装脚本。
